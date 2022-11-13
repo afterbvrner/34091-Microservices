@@ -8,12 +8,12 @@ import org.springframework.context.annotation.Configuration
 import ru.quipy.core.EventSourcingServiceFactory
 import java.util.*
 
-//@Configuration
-//class OrderDemoConfig {
-//
-//    @Autowired
-//    private lateinit var eventSourcingServiceFactory: EventSourcingServiceFactory
-//
-//    @Bean
-//    fun orderService() = eventSourcingServiceFactory.create<UUID, OrderAggregate, OrderAggregateState>()
-//}
+@Configuration
+class OrderDemoConfig {
+
+    @Autowired
+    private lateinit var eventSourcingServiceFactory: EventSourcingServiceFactory
+
+    @Bean
+    fun orderService() = eventSourcingServiceFactory.create<UUID, OrderAggregate, OrderAggregateState>()
+}

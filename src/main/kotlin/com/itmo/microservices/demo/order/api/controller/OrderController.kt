@@ -1,8 +1,6 @@
 package com.itmo.microservices.demo.order.api.controller
 
-import com.itmo.microservices.demo.order.api.model.PaymentInformation
-import com.itmo.microservices.demo.order.api.model.SaveOrderRequest
-import com.itmo.microservices.demo.order.api.model.SaveOrderResponse
+import com.itmo.microservices.demo.order.api.model.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -39,7 +37,8 @@ class OrderController {
         summary = "Fulfil order",
         responses = [
             ApiResponse(description = "OK", responseCode = "200"),
-            ApiResponse(description = "Order not found", responseCode = "404", content = [Content()])
+            ApiResponse(description = "Order not found", responseCode = "404", content = [Content()]),
+            ApiResponse(description = "Unauthorized", responseCode = "403", content = [Content()])
         ],
         security = [SecurityRequirement(name = "bearerAuth")]
     )
@@ -47,6 +46,24 @@ class OrderController {
         @PathVariable orderId: Long,
         @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
     ): PaymentInformation {
+        TODO()
+    }
+
+    @PostMapping("/payment/{orderId}/deliverySlot")
+    @Operation(
+        summary = "Select delivery slot for order",
+        responses = [
+            ApiResponse(description = "OK", responseCode = "200"),
+            ApiResponse(description = "Order not found", responseCode = "404", content = [Content()]),
+            ApiResponse(description = "Unauthorized", responseCode = "403", content = [Content()])
+        ],
+        security = [SecurityRequirement(name = "bearerAuth")]
+    )
+    fun selectDeliverySlot(
+        @PathVariable orderId: Long,
+        @RequestBody request: SelectDeliverySlotRequest,
+        @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
+    ): DeliverySlot {
         TODO()
     }
 }

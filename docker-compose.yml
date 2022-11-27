@@ -4,7 +4,7 @@ services:
   app:
     image: ghcr.io/stepanstefan/92-Microservices:${APP_VERSION:-latest}
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-92-Microservices:5432/app
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5222/testitmo
       SPRING_DATASOURCE_USERNAME: app
       SPRING_DATASOURCE_PASSWORD: app
     depends_on:

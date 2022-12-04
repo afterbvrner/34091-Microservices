@@ -12,58 +12,93 @@ import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
-@RequestMapping("/order")
+@RequestMapping("/orders")
 class OrderController {
 
     @PostMapping
     @Operation(
-        summary = "Create / Update order",
+        summary = "Create new order",
         responses = [
             ApiResponse(description = "OK", responseCode = "200"),
-            ApiResponse(description = "Bad request", responseCode = "400", content = [Content()]),
             ApiResponse(description = "Unauthorized", responseCode = "403", content = [Content()])
         ],
         security = [SecurityRequirement(name = "bearerAuth")]
     )
     fun saveOrder(
-        @RequestBody request: SaveOrderRequest,
         @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
-    ): SaveOrderResponse {
+    ): OrderDto {
         TODO()
     }
 
-    @PostMapping("/payment/{orderId}")
+    @GetMapping("/{order_id}")
     @Operation(
-        summary = "Fulfil order",
+        summary = "Get order by id",
         responses = [
             ApiResponse(description = "OK", responseCode = "200"),
-            ApiResponse(description = "Order not found", responseCode = "404", content = [Content()]),
+            ApiResponse(description = "Not Found", responseCode = "404"),
             ApiResponse(description = "Unauthorized", responseCode = "403", content = [Content()])
         ],
         security = [SecurityRequirement(name = "bearerAuth")]
     )
-    fun fulfil(
-        @PathVariable orderId: Long,
+    fun getOrder(
+        @PathVariable("order_id") orderId: UUID,
         @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
-    ): PaymentInformation {
+    ): OrderDto {
         TODO()
     }
 
-    @PostMapping("/payment/{orderId}/deliverySlot")
+    @PutMapping("/{order_id}/items/{item_id}")
     @Operation(
-        summary = "Select delivery slot for order",
+        summary = "Place item to order",
         responses = [
             ApiResponse(description = "OK", responseCode = "200"),
-            ApiResponse(description = "Order not found", responseCode = "404", content = [Content()]),
+            ApiResponse(description = "Bad Request", responseCode = "400"),
+            ApiResponse(description = "Not Found", responseCode = "404"),
             ApiResponse(description = "Unauthorized", responseCode = "403", content = [Content()])
         ],
         security = [SecurityRequirement(name = "bearerAuth")]
     )
-    fun selectDeliverySlot(
-        @PathVariable orderId: Long,
-        @RequestBody request: SelectDeliverySlotRequest,
+    fun placeItem(
+        @PathVariable("order_id") orderId: UUID,
+        @PathVariable("item_id") itemId: UUID,
+        @RequestParam(required = true) amount: Int,
         @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
-    ): DeliverySlot {
+    ) {
+        TODO()
+    }
+
+    @PostMapping("{order_id}/bookings")
+    @Operation(
+        summary = "Book order",
+        responses = [
+            ApiResponse(description = "OK", responseCode = "200"),
+            ApiResponse(description = "OK", responseCode = "200"),
+            ApiResponse(description = "Unauthorized", responseCode = "403", content = [Content()])
+        ],
+        security = [SecurityRequirement(name = "bearerAuth")]
+    )
+    fun book(
+        @PathVariable("order_id") orderId: UUID,
+        @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
+    ): BookingDto {
+        TODO()
+    }
+
+    @PostMapping("{order_id}/delivery")
+    @Operation(
+        summary = "Fill delivery time",
+        responses = [
+            ApiResponse(description = "OK", responseCode = "200"),
+            ApiResponse(description = "Not Found", responseCode = "404"),
+            ApiResponse(description = "Unauthorized", responseCode = "403", content = [Content()])
+        ],
+        security = [SecurityRequirement(name = "bearerAuth")]
+    )
+    fun fillDeliveryTime(
+        @PathVariable("order_id") orderId: UUID,
+        @RequestParam(required = true) slot: Int,
+        @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
+    ): BookingDto {
         TODO()
     }
 }

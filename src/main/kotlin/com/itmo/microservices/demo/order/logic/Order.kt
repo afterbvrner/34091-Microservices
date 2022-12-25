@@ -1,8 +1,11 @@
 package com.itmo.microservices.demo.order.logic
 
 import com.itmo.microservices.demo.order.api.OrderAggregate
-import com.itmo.microservices.demo.order.api.OrderEvents
 import com.itmo.microservices.demo.order.api.enums.OrderStatus
+import com.itmo.microservices.demo.order.api.events.OrderAddItemEvent
+import com.itmo.microservices.demo.order.api.events.OrderBookEvent
+import com.itmo.microservices.demo.order.api.events.OrderCreateEvent
+import com.itmo.microservices.demo.order.api.events.OrderFillDeliveryEvent
 import com.itmo.microservices.demo.order.api.model.PaymentLogRecordDto
 import ru.quipy.bankDemo.accounts.api.AccountAggregate
 import ru.quipy.core.annotations.StateTransitionFunc
@@ -20,49 +23,49 @@ class Order : AggregateState<UUID, OrderAggregate> {
 
     override fun getId() = id
 
-    fun createNewOrder(id: UUID = UUID.randomUUID()): OrderEvents.OrderCreateEvent {
-        return OrderEvents.OrderCreateEvent(id);
+    fun createNewOrder(id: UUID = UUID.randomUUID()): OrderCreateEvent {
+        return OrderCreateEvent(id);
     }
 
-    fun putItem(itemId: UUID, amount: Int): OrderEvents.OrderAddItemEvent {
+    fun putItem(itemId: UUID, amount: Int): OrderAddItemEvent {
         if (OrderStatus.COLLECTING !== status) {
             throw IllegalStateException("Order $id already is not collecting data. Current status $status")
         }
-        return OrderEvents.OrderAddItemEvent(itemId, amount);
+        return OrderAddItemEvent(itemId, amount);
     }
 
-    fun bookOrder(): OrderEvents.OrderBookEvent {
+    fun bookOrder(): OrderBookEvent {
         if (OrderStatus.COLLECTING !== status) {
             throw IllegalStateException("Order $id already is not collecting data. Current status $status")
         }
-        return OrderEvents.OrderBookEvent(OrderStatus.BOOKED)
+        return OrderBookEvent(OrderStatus.BOOKED)
     }
 
-    fun fillDeliveryTime(slot: Int): OrderEvents.OrderFillDeliveryEvent {
+    fun fillDeliveryTime(slot: Int): OrderFillDeliveryEvent {
         if (OrderStatus.COLLECTING !== status) {
             throw IllegalStateException("Order $id already is not collecting data. Current status $status")
         }
-        return OrderEvents.OrderFillDeliveryEvent(slot);
+        return OrderFillDeliveryEvent(slot);
     }
 
     @StateTransitionFunc
-    fun createNewOrder(event: OrderEvents.OrderCreateEvent) {
+    fun createNewOrder(event: OrderCreateEvent) {
         id = event.id;
         status = OrderStatus.COLLECTING
     }
 
     @StateTransitionFunc
-    fun putItem(event: OrderEvents.OrderAddItemEvent) {
+    fun putItem(event: OrderAddItemEvent) {
         itemsMap[event.itemId] = event.amount;
     }
 
     @StateTransitionFunc
-    fun updateStatus(event: OrderEvents.OrderBookEvent) {
+    fun updateStatus(event: OrderBookEvent) {
         status = event.status;
     }
 
     @StateTransitionFunc
-    fun updateStatus(event: OrderEvents.OrderFillDeliveryEvent) {
+    fun updateStatus(event: OrderFillDeliveryEvent) {
         deliveryDuration = event.slot;
     }
 }

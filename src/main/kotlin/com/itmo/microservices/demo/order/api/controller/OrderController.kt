@@ -1,6 +1,9 @@
 package com.itmo.microservices.demo.order.api.controller
 
+import com.itmo.microservices.demo.order.api.OrderAggregate
+import com.itmo.microservices.demo.order.api.OrderEvents
 import com.itmo.microservices.demo.order.api.model.*
+import com.itmo.microservices.demo.order.logic.Order
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -9,11 +12,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
+import ru.quipy.core.EventSourcingService
 import java.util.*
 
 @RestController
 @RequestMapping("/orders")
-class OrderController {
+class OrderController(
+    val orderEsService: EventSourcingService<UUID, OrderAggregate, Order>
+) {
 
     @PostMapping
     @Operation(
@@ -26,8 +32,8 @@ class OrderController {
     )
     fun saveOrder(
         @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
-    ): OrderDto {
-        TODO()
+    ): OrderEvents.OrderCreateEvent {
+        return orderEsService.create { it.createNewOrder() }
     }
 
     @GetMapping("/{order_id}")
@@ -43,8 +49,8 @@ class OrderController {
     fun getOrder(
         @PathVariable("order_id") orderId: UUID,
         @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
-    ): OrderDto {
-        TODO()
+    ): Order? {
+        return orderEsService.getState(orderId)
     }
 
     @PutMapping("/{order_id}/items/{item_id}")
@@ -63,8 +69,8 @@ class OrderController {
         @PathVariable("item_id") itemId: UUID,
         @RequestParam(required = true) amount: Int,
         @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
-    ) {
-        TODO()
+    ): OrderEvents.OrderAddItemEvent {
+        return orderEsService.update(orderId) { it.putItem(itemId, amount) }
     }
 
     @PostMapping("{order_id}/bookings")
@@ -80,8 +86,8 @@ class OrderController {
     fun book(
         @PathVariable("order_id") orderId: UUID,
         @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
-    ): BookingDto {
-        TODO()
+    ): OrderEvents.OrderBookEvent {
+        return orderEsService.update(orderId) { it.bookOrder() }
     }
 
     @PostMapping("{order_id}/delivery")
@@ -98,7 +104,7 @@ class OrderController {
         @PathVariable("order_id") orderId: UUID,
         @RequestParam(required = true) slot: Int,
         @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
-    ): BookingDto {
-        TODO()
+    ): OrderEvents.OrderFillDeliveryEvent {
+        return orderEsService.update(orderId) { it.fillDeliveryTime(slot) }
     }
 }

@@ -7,7 +7,6 @@ import com.itmo.microservices.demo.order.api.events.OrderBookEvent
 import com.itmo.microservices.demo.order.api.events.OrderCreateEvent
 import com.itmo.microservices.demo.order.api.events.OrderFillDeliveryEvent
 import com.itmo.microservices.demo.order.api.model.PaymentLogRecordDto
-import ru.quipy.bankDemo.accounts.api.AccountAggregate
 import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
 import java.util.UUID

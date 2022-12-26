@@ -1,7 +1,10 @@
 package com.itmo.microservices.demo.order.api.controller
 
 import com.itmo.microservices.demo.order.api.OrderAggregate
-import com.itmo.microservices.demo.order.api.OrderEvents
+import com.itmo.microservices.demo.order.api.events.OrderAddItemEvent
+import com.itmo.microservices.demo.order.api.events.OrderBookEvent
+import com.itmo.microservices.demo.order.api.events.OrderCreateEvent
+import com.itmo.microservices.demo.order.api.events.OrderFillDeliveryEvent
 import com.itmo.microservices.demo.order.api.model.*
 import com.itmo.microservices.demo.order.logic.Order
 import io.swagger.v3.oas.annotations.Operation
@@ -32,7 +35,7 @@ class OrderController(
     )
     fun saveOrder(
         @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
-    ): OrderEvents.OrderCreateEvent {
+    ): OrderCreateEvent {
         return orderEsService.create { it.createNewOrder() }
     }
 
@@ -69,7 +72,7 @@ class OrderController(
         @PathVariable("item_id") itemId: UUID,
         @RequestParam(required = true) amount: Int,
         @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
-    ): OrderEvents.OrderAddItemEvent {
+    ): OrderAddItemEvent {
         return orderEsService.update(orderId) { it.putItem(itemId, amount) }
     }
 
@@ -86,7 +89,7 @@ class OrderController(
     fun book(
         @PathVariable("order_id") orderId: UUID,
         @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
-    ): OrderEvents.OrderBookEvent {
+    ): OrderBookEvent {
         return orderEsService.update(orderId) { it.bookOrder() }
     }
 
@@ -104,7 +107,7 @@ class OrderController(
         @PathVariable("order_id") orderId: UUID,
         @RequestParam(required = true) slot: Int,
         @Parameter(hidden = true) @AuthenticationPrincipal requester: UserDetails
-    ): OrderEvents.OrderFillDeliveryEvent {
+    ): OrderFillDeliveryEvent {
         return orderEsService.update(orderId) { it.fillDeliveryTime(slot) }
     }
 }

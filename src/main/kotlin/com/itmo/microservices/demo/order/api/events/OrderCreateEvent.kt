@@ -7,7 +7,7 @@ import java.util.UUID
 
 const val ORDER_CREATE = "ORDER_CREATE";
 
-@DomainEvent(name = cORDER_CREATE)
+@DomainEvent(name = ORDER_CREATE)
 data class OrderCreateEvent(
     val orderId: UUID
     ) : Event<OrderAggregate>(name = ORDER_CREATE)
